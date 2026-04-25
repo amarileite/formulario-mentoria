@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -202,19 +203,20 @@
     <div class="slabel">Quem é você</div>
     <div class="row">
       <div class="field">
-        <label>Nome completo</label>
+        <label>Nome completo <span style="color:var(--terracota)">*</span></label>
         <input type="text" id="nome" placeholder="Seu nome" />
-        <div class="err-msg" id="err-nome">Por favor, preencha seu nome.</div>
+        <div class="err-msg" id="err-nome">Por favor, preencha seu nome completo.</div>
       </div>
       <div class="field">
-        <label>WhatsApp</label>
-        <input type="tel" id="whatsapp" placeholder="+55 11 99999-0000" />
+        <label>WhatsApp <span style="color:var(--terracota)">*</span></label>
+        <input type="tel" id="whatsapp" placeholder="+55 11 91234-5678" />
+        <div class="err-msg" id="err-whatsapp">Use o formato +55 11 91234-5678</div>
       </div>
     </div>
     <div class="field">
-      <label>E-mail</label>
+      <label>E-mail <span style="color:var(--terracota)">*</span></label>
       <input type="email" id="email" placeholder="seu@email.com" />
-      <div class="err-msg" id="err-email">Por favor, preencha seu e-mail.</div>
+      <div class="err-msg" id="err-email">Insira um e-mail válido (ex: nome@dominio.com)</div>
     </div>
     <div class="row">
       <div class="field">
@@ -222,7 +224,7 @@
         <input type="text" id="cargo" placeholder="Ex: Gestora, Empreendedora…" />
       </div>
       <div class="field">
-        <label>Como chegou até aqui?</label>
+        <label>Como chegou até aqui? <span style="color:var(--terracota)">*</span></label>
         <select id="origem">
           <option value="">Selecione</option>
           <option>Instagram</option>
@@ -232,6 +234,7 @@
           <option>Tiktok</option>
           <option>Outro</option>
         </select>
+        <div class="err-msg" id="err-origem">Por favor, selecione uma opção.</div>
       </div>
     </div>
 
@@ -248,8 +251,9 @@
       <div class="chip" data-v="Outro">Outro</div>
     </div>
     <div class="field" style="margin-top:14px;">
-      <label>Qual é o seu principal desafio agora?</label>
+      <label>Qual é o seu principal desafio agora? <span style="color:var(--terracota)">*</span></label>
       <textarea id="desafio" placeholder="Descreva onde você está travada ou o que quer transformar…"></textarea>
+      <div class="err-msg" id="err-desafio">Por favor, descreva seu principal desafio.</div>
     </div>
 
     <div class="divider"></div>
@@ -399,17 +403,36 @@
   }
 
   async function enviar() {
-    // validação
-    const nome  = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    let ok = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const whatsRegex = /^\+\d{2}\s\d{2}\s\d{5}-\d{4}$/;
 
-    document.getElementById('nome').classList.toggle('err', !nome);
-    document.getElementById('err-nome').classList.toggle('show-err', !nome);
-    document.getElementById('email').classList.toggle('err', !email);
-    document.getElementById('err-email').classList.toggle('show-err', !email);
-    if (!nome || !email) { ok = false; }
-    if (!ok) return;
+    const nome    = document.getElementById('nome').value.trim();
+    const whats   = document.getElementById('whatsapp').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const origem  = document.getElementById('origem').value;
+    const desafio = document.getElementById('desafio').value.trim();
+
+    const emailOk = email && emailRegex.test(email);
+    const whatsOk = whats && whatsRegex.test(whats);
+
+    // aplica/remove erros em cada campo
+    function setErr(fieldId, errId, hasErr) {
+      document.getElementById(fieldId).classList.toggle('err', hasErr);
+      document.getElementById(errId).classList.toggle('show-err', hasErr);
+    }
+
+    setErr('nome',     'err-nome',    !nome);
+    setErr('whatsapp', 'err-whatsapp', !whatsOk);
+    setErr('email',    'err-email',    !emailOk);
+    setErr('origem',   'err-origem',   !origem);
+    setErr('desafio',  'err-desafio',  !desafio);
+
+    if (!nome || !whatsOk || !emailOk || !origem || !desafio) {
+      // rola até o primeiro campo com erro
+      const primeiro = document.querySelector('.err');
+      if (primeiro) primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
 
     // UI loading
     document.getElementById('global-error').style.display = 'none';
@@ -453,6 +476,7 @@
     document.getElementById('cw').classList.remove('off');
     document.getElementById('submit-btn').disabled = false;
     document.getElementById('loading').style.display = 'none';
+    document.getElementById('global-error').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
