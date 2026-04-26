@@ -209,8 +209,8 @@
       </div>
       <div class="field">
         <label>WhatsApp <span style="color:var(--terracota)">*</span></label>
-        <input type="tel" id="whatsapp" placeholder="+55 11 91234-5678" />
-        <div class="err-msg" id="err-whatsapp">Use o formato +55 11 91234-5678</div>
+        <input type="tel" id="whatsapp" placeholder="+55 11 91234-5678" maxlength="17" inputmode="numeric" />
+        <div class="err-msg" id="err-whatsapp">Digite o DDD + número completo (13 dígitos)</div>
       </div>
     </div>
     <div class="field">
@@ -355,7 +355,39 @@
   const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/gc6hrekidr6531zas1o26mcptdr5tz2r';
   // ─────────────────────────────────────────────────────────────────────────
 
-  // chips multi-select
+  // ── máscara automática WhatsApp ──────────────────────────────────────────
+  // A pessoa digita apenas números; o campo formata sozinho: +55 11 91234-5678
+  const whatsInput = document.getElementById('whatsapp');
+  whatsInput.addEventListener('input', function (e) {
+    // mantém só dígitos do que foi digitado
+    let digits = this.value.replace(/\D/g, '').slice(0, 13);
+
+    let formatted = '';
+    if (digits.length === 0) {
+      formatted = '';
+    } else if (digits.length <= 2) {
+      formatted = '+' + digits;
+    } else if (digits.length <= 4) {
+      formatted = '+' + digits.slice(0, 2) + ' ' + digits.slice(2);
+    } else if (digits.length <= 9) {
+      formatted = '+' + digits.slice(0, 2) + ' ' + digits.slice(2, 4) + ' ' + digits.slice(4);
+    } else {
+      formatted = '+' + digits.slice(0, 2) + ' ' + digits.slice(2, 4) + ' ' + digits.slice(4, 9) + '-' + digits.slice(9);
+    }
+
+    this.value = formatted;
+  });
+
+  // impede digitação de não-números (exceto backspace, delete, setas)
+  whatsInput.addEventListener('keydown', function (e) {
+    const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab'];
+    if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
+
   document.querySelectorAll('#temas .chip').forEach(c =>
     c.addEventListener('click', () => c.classList.toggle('on'))
   );
@@ -404,7 +436,7 @@
 
   async function enviar() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const whatsRegex = /^\+\d{2}\s\d{2}\s\d{5}-\d{4}$/;
+    const whatsRegex = /^\+\d{2}\s\d{2}\s\d{5}-\d{4}$/;  // +55 11 91234-5678
 
     const nome    = document.getElementById('nome').value.trim();
     const whats   = document.getElementById('whatsapp').value.trim();
