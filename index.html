@@ -1,10 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Lista de Espera — Mentoria</title>
+<!-- Google Analytics GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GSZPF1ETBS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-GSZPF1ETBS');
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Manrope:wght@400;500&display=swap" rel="stylesheet" />
@@ -481,6 +489,10 @@
       if (!resp.ok) throw new Error('Resposta não-ok: ' + resp.status);
 
       // sucesso
+      gtag('event', 'form_submit', {
+        event_category: 'Formulario',
+        event_label: 'Lista de Espera Mentoria'
+      });
       document.getElementById('form-view').style.display = 'none';
       document.getElementById('success').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
